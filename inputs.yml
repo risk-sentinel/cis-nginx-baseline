@@ -1,0 +1,29 @@
+# Consumer inputs for cis-nginx.
+#
+# Override values per-environment via:
+#   cinc-auditor exec profiles/cis-nginx \
+#     --input-file profiles/cis-nginx/inputs.yml
+# or individually via --input name=value
+#
+# Defaults match the nginx-official container image and most distro
+# packages. A worked overlay sits at `examples/sparc.inputs.yml`.
+
+# Path to the primary nginx configuration file on the target.
+nginx_conf_path: /etc/nginx/nginx.conf
+
+# Expected non-privileged OS user that nginx workers run as.
+nginx_service_user: nginx
+
+# Port allowlist for `listen` directives (CIS 2.4.1). Anything outside
+# this list fails. Default permits HTTP (redirect-only; see CIS 4.1.1)
+# plus HTTPS.
+nginx_authorized_ports:
+  - 80
+  - 443
+
+# Optional allowlist of dynamic-module filenames (load_module argument).
+# Empty default = attestation skip on CIS 2.1.1; non-empty = strict
+# enforcement.
+# nginx_authorized_dynamic_modules:
+#   - modules/ngx_http_geoip_module.so
+#   - modules/ngx_stream_module.so

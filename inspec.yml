@@ -1,0 +1,115 @@
+name: cis-nginx
+title: NGINX CIS Baseline
+maintainer: Risk Sentinel
+copyright: Risk Sentinel
+copyright_email: support@risk-sentinel.org
+license: Apache-2.0
+summary: |
+  Validates NGINX deployments against CIS NGINX Benchmark v3.0.0.
+  Targets containerized NGINX workloads (e.g., an NGINX sidecar running
+  inside an ECS Fargate / Kubernetes task) and any NGINX host install.
+version: 0.1.0
+inspec_version: '>= 5.0'
+
+inputs:
+  - name: nginx_conf_path
+    type: string
+    value: /etc/nginx/nginx.conf
+    description: >-
+      Absolute path to the primary NGINX configuration file on the scan
+      target. Default matches the nginx-official container image and
+      every common host-install layout. Override when the target uses a
+      non-standard path (e.g., a scratch-based image with /opt/nginx/).
+
+  - name: nginx_service_user
+    type: string
+    value: nginx
+    description: >-
+      Expected non-privileged OS user that the NGINX worker processes
+      run as. CIS 2.2.x family. Default matches the nginx-official
+      container image and most distro packages. Override for custom
+      service accounts (e.g., `www-data` on Debian/Ubuntu host installs).
+
+  - name: nginx_authorized_ports
+    type: array
+    value: [80, 443]
+    description: >-
+      Port allowlist for NGINX `listen` directives (CIS 2.4.1). Any
+      `listen <port>` directive not in this list fails. Default accepts
+      plaintext HTTP (redirect-only; see CIS 4.1.1) plus HTTPS. Override
+      when the workload intentionally binds additional ports (e.g.,
+      management port on 8443, stream-mode TCP ports).
+
+  - name: nginx_authorized_dynamic_modules
+    type: array
+    value: []
+    description: >-
+      Optional allowlist of dynamic-module filenames (the argument to
+      each `load_module` directive) that are permitted. Empty (default)
+      falls back to an attestation skip on CIS 2.1.1 — operators decide
+      per workload which dynamic modules are legitimate. Non-empty
+      enables automated enforcement: any `load_module` naming a file
+      outside the list fails.
+
+      Example values:
+      ['modules/ngx_http_geoip_module.so', 'modules/ngx_stream_module.so']
+
+  - name: logging_strategy
+    type: string
+    value: custom
+    description: >-
+      How logging-related CIS controls are satisfied for this
+      consumer's compliance boundary. One of:
+
+      - 'aws_default' — AWS-managed / centralised / cross-account
+        logging is the satisfaction mechanism. Logging controls in
+        scope skip with an inheritance rationale citing the consumer's
+        documented logging-architecture attestation. Pair with
+        `logging_attestation_reference` to identify where that
+        architecture is documented.
+      - 'custom' — this account / workload operates its own logging
+        stack. Controls assert against `logging_requirements` (below).
+
+      Default 'custom' forces explicit declaration; flip to
+      'aws_default' with a populated `logging_attestation_reference`
+      when consolidated logging (e.g., a security-tooling account
+      consolidating CloudTrail, a centralised SIEM ingesting events,
+      or an Organizations-level audit trail) satisfies the boundary
+      requirement that this account's per-control checks would
+      otherwise assert per-account.
+
+  - name: logging_attestation_reference
+    type: string
+    value: ''
+    description: >-
+      Consulted only when `logging_strategy == 'aws_default'`. Free-
+      form reference to the consumer's documented logging-boundary
+      architecture (e.g., a doc path like
+      'security-architecture/logging-baseline.md §3', a URL, or a
+      ticket reference). Surfaces verbatim in the inheritance skip
+      message on every affected control so auditors can trace the
+      attestation back to the source.
+
+  - name: logging_requirements
+    type: hash
+    value: {}
+    description: >-
+      Consulted only when `logging_strategy == 'custom'`. Consumer-
+      specific logging requirements that controls assert against.
+      Recognised keys (extend per profile — see README "Logging
+      strategy" for the keys this profile reads):
+
+      - retention_days: numeric — minimum CloudWatch / S3-access-log
+        retention period.
+      - log_group_arn_prefix: string — assert that log destinations
+        start with this prefix.
+      - required_metric_filters: array of CIS rule IDs (e.g., ["5.1",
+        "5.7", "5.16"]) — the consumer commits to operating these
+        filters in this account; rules not in the list skip with the
+        boundary-inheritance rationale.
+      - metric_filter_overrides: hash keyed by CIS rule ID — per-rule
+        structured assertions beyond presence (e.g., {"5.7":
+        {"threshold": 3}}).
+
+supports:
+  - platform: container
