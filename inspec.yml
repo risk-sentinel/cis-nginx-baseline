@@ -184,4 +184,9 @@ inputs:
       Staleness window (days) for the C-1.2.1 image-build attestation.
 
 supports:
-  - platform: container
+  # NGINX runs on Linux (host install or container). Declaring `linux` matches
+  # the actual platform inspec/train detects over -t docker:// (e.g. debian,
+  # alpine) and -t local:// / -t ssh:// on a Linux host. The prior
+  # `platform: container` matched no real container OS, so the profile skipped
+  # with "unsupported platform" on every docker:// target (sparc-validate#172).
+  - platform: linux
