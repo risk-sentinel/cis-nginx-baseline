@@ -50,7 +50,7 @@ control 'C-4.1.3' do
   tag implementation_status: 'implemented'
   tag exec_validated:        false
 
-  key_paths = Array(nginx_conf(input('nginx_conf_path')).http.params['ssl_certificate_key']).map { |args| Array(args).first.to_s }
+  key_paths = Array(nginx_http_values(nginx_conf(input('nginx_conf_path')), 'ssl_certificate_key')).map { |args| Array(args).first.to_s }
   conf = nginx_conf(input('nginx_conf_path'))
   conf.http.servers.each do |s|
     key_paths.concat(Array(s.params['ssl_certificate_key']).map { |args| Array(args).first.to_s })

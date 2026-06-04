@@ -46,7 +46,7 @@ control 'C-2.4.3' do
   tag implementation_status: 'implemented'
   tag exec_validated:        false
 
-  value = Array(nginx_conf(input('nginx_conf_path')).http.params['keepalive_timeout']).flatten.first
+  value = Array(nginx_http_values(nginx_conf(input('nginx_conf_path')), 'keepalive_timeout')).flatten.first
 
   describe 'http.keepalive_timeout directive — must be present' do
     subject { value }

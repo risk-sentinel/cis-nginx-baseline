@@ -55,7 +55,7 @@ control 'C-5.3.3' do
       values << tokens[1].to_s.gsub(/["';]/, '').strip if tokens[0]&.casecmp?('Referrer-Policy')
     end
   end
-  check_params.call(conf.http.params)
+  check_params.call((Array(conf.params['http']).first || {}))
   conf.http.servers.each do |s|
     check_params.call(s.params)
     s.locations.each { |l| check_params.call(l.params) }

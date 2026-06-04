@@ -75,7 +75,7 @@ control 'C-4.1.8' do
 
   conf = nginx_conf(input('nginx_conf_path'))
   add_headers = []
-  add_headers.concat(Array(conf.http.params['add_header']).map { |args| Array(args).first.to_s })
+  add_headers.concat(Array(nginx_http_values(conf, 'add_header')).map { |args| Array(args).first.to_s })
   conf.http.servers.each do |s|
     add_headers.concat(Array(s.params['add_header']).map { |args| Array(args).first.to_s })
     s.locations.each do |l|

@@ -63,7 +63,7 @@ control 'C-5.2.3' do
   tag implementation_status: 'implemented'
   tag exec_validated:        false
 
-  values = Array(nginx_conf(input('nginx_conf_path')).http.params['large_client_header_buffers']).flatten
+  values = Array(nginx_http_values(nginx_conf(input('nginx_conf_path')), 'large_client_header_buffers')).flatten
 
   describe 'http.large_client_header_buffers — must be explicitly set' do
     subject { values }

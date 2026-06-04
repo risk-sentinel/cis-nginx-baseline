@@ -56,7 +56,7 @@ control 'C-5.3.1' do
       matching << tokens[1].to_s
     end
   end
-  collect_add_headers.call(conf.http.params)
+  collect_add_headers.call((Array(conf.params['http']).first || {}))
   conf.http.servers.each do |s|
     collect_add_headers.call(s.params)
     s.locations.each { |l| collect_add_headers.call(l.params) }

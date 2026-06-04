@@ -50,7 +50,7 @@ control 'C-4.1.11' do
   tag exec_validated:        false
 
   conf = nginx_conf(input('nginx_conf_path'))
-  has_tls = !Array(conf.http.params['ssl_certificate']).empty? ||
+  has_tls = !Array(nginx_http_values(conf, 'ssl_certificate')).empty? ||
             conf.http.servers.any? { |s| !Array(s.params['ssl_certificate']).empty? }
 
   if !has_tls
@@ -58,9 +58,9 @@ control 'C-4.1.11' do
       skip 'not-applicable: no ssl_certificate directives — TLS is terminated upstream.'
     end
   else
-    cache_values = Array(conf.http.params['ssl_session_cache']).flatten.map(&:to_s)
-    timeout_values = Array(conf.http.params['ssl_session_timeout']).flatten.map(&:to_s)
-    tickets_values = Array(conf.http.params['ssl_session_tickets']).flatten.map(&:to_s)
+    cache_values = Array(nginx_http_values(conf, 'ssl_session_cache')).flatten.map(&:to_s)
+    timeout_values = Array(nginx_http_values(conf, 'ssl_session_timeout')).flatten.map(&:to_s)
+    tickets_values = Array(nginx_http_values(conf, 'ssl_session_tickets')).flatten.map(&:to_s)
 
     describe 'NGINX ssl_session_cache configured (shared) for TLS session resumption (CIS 4.1.11)' do
       subject { cache_values.any? { |v| v.start_with?('shared:') } }

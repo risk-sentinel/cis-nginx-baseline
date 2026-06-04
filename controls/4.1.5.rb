@@ -57,7 +57,7 @@ control 'C-4.1.5' do
   tag exec_validated:        false
 
   conf = nginx_conf(input('nginx_conf_path'))
-  cipher_strings = Array(conf.http.params['ssl_ciphers']).flatten.map(&:to_s)
+  cipher_strings = Array(nginx_http_values(conf, 'ssl_ciphers')).flatten.map(&:to_s)
   conf.http.servers.each do |s|
     cipher_strings.concat(Array(s.params['ssl_ciphers']).flatten.map(&:to_s))
   end

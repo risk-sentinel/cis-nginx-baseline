@@ -34,8 +34,8 @@ control 'C-4.1.6' do
 
 
   conf = nginx_conf(input('nginx_conf_path'))
-  protocols = Array(conf.http.params['ssl_protocols']).flatten.map(&:to_s)
-  curves    = Array(conf.http.params['ssl_ecdh_curve']).flatten.map(&:to_s)
+  protocols = Array(nginx_http_values(conf, 'ssl_protocols')).flatten.map(&:to_s)
+  curves    = Array(nginx_http_values(conf, 'ssl_ecdh_curve')).flatten.map(&:to_s)
   conf.http.servers.each do |s|
     protocols.concat(Array(s.params['ssl_protocols']).flatten.map(&:to_s))
     curves.concat(Array(s.params['ssl_ecdh_curve']).flatten.map(&:to_s))

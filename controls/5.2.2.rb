@@ -62,7 +62,7 @@ control 'C-5.2.2' do
   tag implementation_status: 'implemented'
   tag exec_validated:        false
 
-  values = Array(nginx_conf(input('nginx_conf_path')).http.params['client_max_body_size']).flatten
+  values = Array(nginx_http_values(nginx_conf(input('nginx_conf_path')), 'client_max_body_size')).flatten
 
   describe 'http.client_max_body_size — must be explicitly set (not relying on default)' do
     subject { values }

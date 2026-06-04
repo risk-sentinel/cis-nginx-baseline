@@ -73,8 +73,8 @@ control 'C-5.2.1' do
   tag exec_validated:        false
 
   conf = nginx_conf(input('nginx_conf_path'))
-  header_value = Array(conf.http.params['client_header_timeout']).flatten.first
-  body_value   = Array(conf.http.params['client_body_timeout']).flatten.first
+  header_value = Array(nginx_http_values(conf, 'client_header_timeout')).flatten.first
+  body_value   = Array(nginx_http_values(conf, 'client_body_timeout')).flatten.first
 
   describe 'http.client_header_timeout — must be set' do
     subject { header_value }

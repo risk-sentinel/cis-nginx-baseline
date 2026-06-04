@@ -87,7 +87,7 @@ control 'C-3.4' do
     offenders = proxy_pass_locations.each_with_object([]) do |loc, acc|
       set_headers = Array(loc.params['proxy_set_header']).map { |args| Array(args).first.to_s }
       # Also consider headers set at the http or server level (inherited).
-      inherited_http = Array(conf.http.params['proxy_set_header']).map { |args| Array(args).first.to_s }
+      inherited_http = Array(nginx_http_values(conf, 'proxy_set_header')).map { |args| Array(args).first.to_s }
       inherited_server = loc.parent.respond_to?(:params) ? Array(loc.parent.params['proxy_set_header']).map { |args| Array(args).first.to_s } : []
       effective = (set_headers + inherited_http + inherited_server).uniq
       missing = required_headers - effective

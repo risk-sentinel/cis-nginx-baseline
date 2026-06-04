@@ -80,8 +80,8 @@ control 'C-5.2.4' do
   tag exec_validated:        false
 
   conf = nginx_conf(input('nginx_conf_path'))
-  has_zone = !Array(conf.http.params['limit_conn_zone']).empty?
-  applied = !Array(conf.http.params['limit_conn']).empty? ||
+  has_zone = !Array(nginx_http_values(conf, 'limit_conn_zone')).empty?
+  applied = !Array(nginx_http_values(conf, 'limit_conn')).empty? ||
             conf.http.servers.any? { |s| !Array(s.params['limit_conn']).empty? } ||
             conf.http.servers.flat_map(&:locations).any? { |l| !Array(l.params['limit_conn']).empty? }
 

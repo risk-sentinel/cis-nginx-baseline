@@ -69,7 +69,7 @@ control 'C-2.5.4' do
   tag exec_validated:        false
 
   conf = nginx_conf(input('nginx_conf_path'))
-  has_proxy_pass = !Array(conf.http.params['proxy_pass']).empty? ||
+  has_proxy_pass = !Array(nginx_http_values(conf, 'proxy_pass')).empty? ||
                    conf.http.servers.flat_map(&:locations).any? { |l| !Array(l.params['proxy_pass']).empty? }
 
   if !has_proxy_pass
@@ -78,7 +78,7 @@ control 'C-2.5.4' do
     end
   else
     required_hidden = %w[X-Powered-By Server X-AspNet-Version X-AspNetMvc-Version]
-    hidden = Array(conf.http.params['proxy_hide_header']).map { |args| Array(args).first.to_s }
+    hidden = Array(nginx_http_values(conf, 'proxy_hide_header')).map { |args| Array(args).first.to_s }
     missing = required_hidden - hidden
     describe 'NGINX proxy_hide_header missing info-disclosure-shielding entries' do
       subject { missing }

@@ -59,7 +59,7 @@ control 'C-5.1.1' do
     end
   else
     conf = nginx_conf(input('nginx_conf_path'))
-    directives = Array(conf.http.params['allow']) + Array(conf.http.params['deny'])
+    directives = Array(nginx_http_values(conf, 'allow')) + Array(nginx_http_values(conf, 'deny'))
     conf.http.servers.each do |s|
       directives += Array(s.params['allow']) + Array(s.params['deny'])
       s.locations.each { |l| directives += Array(l.params['allow']) + Array(l.params['deny']) }

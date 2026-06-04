@@ -64,14 +64,14 @@ control 'C-4.1.7' do
   tag exec_validated:        false
 
   conf = nginx_conf(input('nginx_conf_path'))
-  stapling_values = Array(conf.http.params['ssl_stapling']).flatten.map(&:to_s)
-  verify_values = Array(conf.http.params['ssl_stapling_verify']).flatten.map(&:to_s)
+  stapling_values = Array(nginx_http_values(conf, 'ssl_stapling')).flatten.map(&:to_s)
+  verify_values = Array(nginx_http_values(conf, 'ssl_stapling_verify')).flatten.map(&:to_s)
   conf.http.servers.each do |s|
     stapling_values.concat(Array(s.params['ssl_stapling']).flatten.map(&:to_s))
     verify_values.concat(Array(s.params['ssl_stapling_verify']).flatten.map(&:to_s))
   end
 
-  has_tls = !Array(conf.http.params['ssl_certificate']).empty? ||
+  has_tls = !Array(nginx_http_values(conf, 'ssl_certificate')).empty? ||
             conf.http.servers.any? { |s| !Array(s.params['ssl_certificate']).empty? }
 
   if !has_tls

@@ -71,7 +71,7 @@ control 'C-3.2' do
   tag exec_validated:        false
 
   conf = nginx_conf(input('nginx_conf_path'))
-  http_access_log = Array(conf.http.params['access_log']).flatten.compact
+  http_access_log = Array(nginx_http_values(conf, 'access_log')).flatten.compact
   http_disabled = http_access_log.any? { |v| v.to_s.strip.casecmp('off').zero? }
 
   describe 'NGINX http.access_log directive — must be present and not "off"' do

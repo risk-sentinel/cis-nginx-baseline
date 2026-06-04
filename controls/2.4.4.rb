@@ -46,7 +46,7 @@ control 'C-2.4.4' do
   tag implementation_status: 'implemented'
   tag exec_validated:        false
 
-  value = Array(nginx_conf(input('nginx_conf_path')).http.params['send_timeout']).flatten.first
+  value = Array(nginx_http_values(nginx_conf(input('nginx_conf_path')), 'send_timeout')).flatten.first
 
   describe 'http.send_timeout directive — must be present' do
     subject { value }

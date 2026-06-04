@@ -93,9 +93,15 @@ control 'C-5.1.2' do
     conf = nginx_conf(input('nginx_conf_path'))
     methods = []
     conf.http.servers.each do |s|
-      s.locations.each { |l| methods.concat(Array(l.params['limit_except']).flatten.map(&:to_s)) }
+      s.locations.each do |l|
+        Array(l.params['limit_except']).each do |blk|
+          # limit_except parses as {'_' => [methods...], <nested directives>};
+          # the permitted methods are under the '_' key.
+          methods.concat(blk.is_a?(Hash) ? Array(blk['_']).flatten : Array(blk))
+        end
+      end
     end
-    methods = methods.flat_map { |v| v.to_s.split }.reject { |t| t =~ /[{};]/ }.map(&:upcase).uniq
+    methods = methods.flat_map { |v| v.to_s.split }.map(&:upcase).uniq.reject(&:empty?)
 
     if methods.empty?
       describe 'NGINX HTTP method restriction (5.1.2)' do

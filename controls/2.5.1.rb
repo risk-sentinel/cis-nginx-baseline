@@ -50,7 +50,7 @@ control 'C-2.5.1' do
   tag implementation_status: 'implemented'
   tag exec_validated:        false
 
-  value = Array(nginx_conf(input('nginx_conf_path')).http.params['server_tokens']).flatten.first
+  value = Array(nginx_http_values(nginx_conf(input('nginx_conf_path')), 'server_tokens')).flatten.first
   describe 'http.server_tokens directive (CIS 2.5.1)' do
     subject { value }
     it { should eq 'off' }

@@ -95,7 +95,7 @@ control 'C-4.1.4' do
   tag exec_validated:        false
 
   conf = nginx_conf(input('nginx_conf_path'))
-  protocols = Array(conf.http.params['ssl_protocols']).flatten.map(&:to_s)
+  protocols = Array(nginx_http_values(conf, 'ssl_protocols')).flatten.map(&:to_s)
   conf.http.servers.each do |s|
     protocols.concat(Array(s.params['ssl_protocols']).flatten.map(&:to_s))
   end

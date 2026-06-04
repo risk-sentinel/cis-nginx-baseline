@@ -91,7 +91,7 @@ control 'C-3.1' do
   tag implementation_status: 'implemented'
   tag exec_validated:        false
 
-  log_formats = Array(nginx_conf(input('nginx_conf_path')).http.params['log_format'])
+  log_formats = Array(nginx_http_values(nginx_conf(input('nginx_conf_path')), 'log_format'))
   required_vars = %w[$remote_addr $time_local $request $status $body_bytes_sent $http_user_agent]
   offenders = log_formats.each_with_object([]) do |fmt_args, acc|
     body = Array(fmt_args)[1..].to_a.join(' ')

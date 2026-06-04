@@ -64,7 +64,7 @@ control 'C-5.3.2' do
       csp_present = true if tokens[0]&.casecmp?('Content-Security-Policy')
     end
   end
-  check_params.call(conf.http.params)
+  check_params.call((Array(conf.params['http']).first || {}))
   conf.http.servers.each do |s|
     check_params.call(s.params)
     s.locations.each { |l| check_params.call(l.params) }
