@@ -60,7 +60,7 @@ control 'C-5.2.2' do
   tag cis_level:             1
   tag cis_scored:            true
   tag implementation_status: 'implemented'
-  tag exec_validated:        false
+  tag exec_validated:        true
 
   values = Array(nginx_http_values(nginx_conf(input('nginx_conf_path')), 'client_max_body_size')).flatten
 

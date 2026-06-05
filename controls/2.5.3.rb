@@ -91,7 +91,7 @@ control 'C-2.5.3' do
   tag cis_level:             1
   tag cis_scored:            true
   tag implementation_status: 'implemented'
-  tag exec_validated:        false
+  tag exec_validated:        true
 
   conf_files = [input('nginx_conf_path')] + Dir.glob('/etc/nginx/conf.d/*.conf')
   conf_content = conf_files.map { |f| file(f).exist? ? file(f).content.to_s : '' }.join("\n")

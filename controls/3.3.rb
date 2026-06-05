@@ -70,7 +70,7 @@ control 'C-3.3' do
   tag cis_level:             1
   tag cis_scored:            true
   tag implementation_status: 'implemented'
-  tag exec_validated:        false
+  tag exec_validated:        true
 
   values = Array(nginx_conf(input('nginx_conf_path')).params['error_log']).flatten
   acceptable_levels = %w[debug info notice warn]

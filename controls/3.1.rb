@@ -89,7 +89,7 @@ control 'C-3.1' do
   tag cis_level:             1
   tag cis_scored:            true
   tag implementation_status: 'implemented'
-  tag exec_validated:        false
+  tag exec_validated:        true
 
   log_formats = Array(nginx_http_values(nginx_conf(input('nginx_conf_path')), 'log_format'))
   required_vars = %w[$remote_addr $time_local $request $status $body_bytes_sent $http_user_agent]

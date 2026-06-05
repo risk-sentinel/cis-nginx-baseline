@@ -78,7 +78,7 @@ control 'C-2.4.2' do
   tag cis_level:             1
   tag cis_scored:            true
   tag implementation_status: 'implemented'
-  tag exec_validated:        false
+  tag exec_validated:        true
 
   default_server_blocks = nginx_conf(input('nginx_conf_path')).http.servers.select do |server|
     Array(server.params['listen']).any? { |args| Array(args).join(' ').include?('default_server') }

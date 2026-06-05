@@ -78,7 +78,7 @@ control 'C-2.2.1' do
   tag cis_level:             1
   tag cis_scored:            true
   tag implementation_status: 'implemented'
-  tag exec_validated:        false
+  tag exec_validated:        true
 
   described_user = Array(nginx_conf(input('nginx_conf_path')).params['user']).flatten.first
 

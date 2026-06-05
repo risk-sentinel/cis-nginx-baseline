@@ -44,7 +44,7 @@ control 'C-2.4.3' do
   tag cis_level:             1
   tag cis_scored:            true
   tag implementation_status: 'implemented'
-  tag exec_validated:        false
+  tag exec_validated:        true
 
   value = Array(nginx_http_values(nginx_conf(input('nginx_conf_path')), 'keepalive_timeout')).flatten.first
 

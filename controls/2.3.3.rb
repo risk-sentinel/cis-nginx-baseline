@@ -48,7 +48,7 @@ control 'C-2.3.3' do
   tag cis_level:             1
   tag cis_scored:            true
   tag implementation_status: 'implemented'
-  tag exec_validated:        false
+  tag exec_validated:        true
 
   pid_candidates = ['/var/run/nginx.pid', '/run/nginx.pid']
   pid_file = pid_candidates.find { |p| file(p).exist? }
