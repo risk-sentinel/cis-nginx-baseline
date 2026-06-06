@@ -92,7 +92,7 @@ control 'C-4.1.4' do
   tag cis_level:             1
   tag cis_scored:            true
   tag implementation_status: 'implemented'
-  tag exec_validated:        false
+  tag exec_validated:        true
 
   conf = nginx_conf(input('nginx_conf_path'))
   protocols = Array(nginx_http_values(conf, 'ssl_protocols')).flatten.map(&:to_s)
@@ -102,9 +102,18 @@ control 'C-4.1.4' do
   protocols = protocols.flat_map { |v| v.to_s.split }.uniq
   approved = %w[TLSv1.2 TLSv1.3]
 
-  if protocols.empty?
+  termination = input('nginx_tls_termination')
+  disp = tls_termination_disposition(termination, !(protocols.empty?))
+  impact 0.0 if disp == :na
+
+  if disp == :na
     describe 'NGINX ssl_protocols directive' do
-      skip 'not-applicable: no ssl_protocols directive in nginx.conf — TLS is likely terminated upstream.'
+      skip "not-applicable: nginx_tls_termination=#{termination} — NGINX does not terminate TLS here; validate it at the terminating layer (the load balancer / compute / fargate ALB TLS controls)."
+    end
+  elsif disp == :missing
+    describe 'NGINX must terminate TLS when nginx_tls_termination=nginx (4.1.4)' do
+      subject { !(protocols.empty?) }
+      it { is_expected.to be_truthy }
     end
   else
     offenders = protocols.reject { |p| approved.include?(p) }

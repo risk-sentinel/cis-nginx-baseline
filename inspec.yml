@@ -148,6 +148,19 @@ inputs:
       access directive (IP filtering is in use). When false (default), the access
       map is consumer-policy-specific and the control attests.
 
+  - name: nginx_tls_termination
+    type: string
+    value: auto
+    description: >-
+      Where TLS is terminated, governing the section 4.1 TLS controls (4.1.2-4.1.7,
+      4.1.11). 'nginx' = NGINX terminates TLS -> those controls are REQUIRED (a missing
+      ssl_certificate / ssl_protocols / etc. FAILS, not skips); use for host-NGINX or the
+      secure-environment "terminate and forward X-Forwarded-*" style. 'upstream' = TLS is
+      terminated by an upstream load balancer (e.g. an AWS ALB) -> the 4.1 controls are
+      Not-Applicable here; validate TLS at the terminating layer (the compute / fargate
+      ALB TLS controls own that boundary). 'auto' (default) = infer from config (no TLS
+      directives -> upstream/N-A; present -> validate) — back-compatible behaviour.
+
   # ---- document_attestation evidence-class bases (sparc-validate#154) ----
   # Three evidence classes; provider inferred from each base's URI scheme.
   # attestation_uri(:class,'name') -> "<base>/<name>.<ext>"; unset base -> '' ->

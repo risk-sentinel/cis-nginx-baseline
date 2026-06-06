@@ -48,7 +48,7 @@ control 'C-4.1.3' do
   tag cis_level:             1
   tag cis_scored:            true
   tag implementation_status: 'implemented'
-  tag exec_validated:        false
+  tag exec_validated:        true
 
   key_paths = Array(nginx_http_values(nginx_conf(input('nginx_conf_path')), 'ssl_certificate_key')).map { |args| Array(args).first.to_s }
   conf = nginx_conf(input('nginx_conf_path'))
@@ -57,9 +57,18 @@ control 'C-4.1.3' do
   end
   key_paths.uniq!
 
-  if key_paths.empty?
+  termination = input('nginx_tls_termination')
+  disp = tls_termination_disposition(termination, !(key_paths.empty?))
+  impact 0.0 if disp == :na
+
+  if disp == :na
     describe 'NGINX ssl_certificate_key directives' do
-      skip 'not-applicable: no ssl_certificate_key directives in nginx.conf — TLS is likely terminated upstream (e.g., AWS ALB).'
+      skip "not-applicable: nginx_tls_termination=#{termination} — NGINX does not terminate TLS here; validate it at the terminating layer (the load balancer / compute / fargate ALB TLS controls)."
+    end
+  elsif disp == :missing
+    describe 'NGINX must terminate TLS when nginx_tls_termination=nginx (4.1.3)' do
+      subject { !(key_paths.empty?) }
+      it { is_expected.to be_truthy }
     end
   else
     offenders = key_paths.each_with_object([]) do |path, acc|

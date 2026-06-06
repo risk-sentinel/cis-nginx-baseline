@@ -36,6 +36,21 @@ module NginxConfHelpers
     conf.http.servers.each { |s| vals.concat(Array(s.params[directive.to_s])) }
     vals
   end
+
+  # TLS-termination disposition (sparc-validate#172). Given the operator-declared
+  # `nginx_tls_termination` model and whether nginx actually has TLS evidence,
+  # decide how the section 4.1 TLS controls behave:
+  #   :na      -> Not Applicable: nginx is not the TLS terminator (validate the
+  #               terminating layer instead — the ALB / compute / fargate controls)
+  #   :missing -> finding: nginx is the DECLARED terminator but has no TLS config
+  #   :assert  -> run the control's real assertion
+  def tls_termination_disposition(model, present)
+    m = model.to_s.downcase
+    return :na      if m == 'upstream'
+    return :na      if m == 'auto' && !present
+    return :missing if m == 'nginx' && !present
+    :assert
+  end
 end
 
 ::Inspec::Rule.include(NginxConfHelpers)

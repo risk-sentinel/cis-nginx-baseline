@@ -54,7 +54,7 @@ control 'C-4.1.5' do
   tag cis_level:             1
   tag cis_scored:            true
   tag implementation_status: 'implemented'
-  tag exec_validated:        false
+  tag exec_validated:        true
 
   conf = nginx_conf(input('nginx_conf_path'))
   cipher_strings = Array(nginx_http_values(conf, 'ssl_ciphers')).flatten.map(&:to_s)
@@ -63,9 +63,18 @@ control 'C-4.1.5' do
   end
   weak_patterns = /(NULL|EXPORT|DES|MD5|RC4|3DES|aNULL|eNULL|LOW|PSK)/i
 
-  if cipher_strings.empty?
+  termination = input('nginx_tls_termination')
+  disp = tls_termination_disposition(termination, !(cipher_strings.empty?))
+  impact 0.0 if disp == :na
+
+  if disp == :na
     describe 'NGINX ssl_ciphers directive' do
-      skip 'not-applicable: no ssl_ciphers directive in nginx.conf — TLS is likely terminated upstream.'
+      skip "not-applicable: nginx_tls_termination=#{termination} — NGINX does not terminate TLS here; validate it at the terminating layer (the load balancer / compute / fargate ALB TLS controls)."
+    end
+  elsif disp == :missing
+    describe 'NGINX must terminate TLS when nginx_tls_termination=nginx (4.1.5)' do
+      subject { !(cipher_strings.empty?) }
+      it { is_expected.to be_truthy }
     end
   else
     offenders = cipher_strings.select { |c| c =~ weak_patterns }

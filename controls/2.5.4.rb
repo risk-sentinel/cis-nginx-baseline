@@ -66,7 +66,7 @@ control 'C-2.5.4' do
   tag cis_level:             1
   tag cis_scored:            true
   tag implementation_status: 'implemented'
-  tag exec_validated:        false
+  tag exec_validated:        true
 
   conf = nginx_conf(input('nginx_conf_path'))
   has_proxy_pass = !Array(nginx_http_values(conf, 'proxy_pass')).empty? ||

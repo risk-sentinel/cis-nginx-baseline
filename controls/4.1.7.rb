@@ -61,7 +61,7 @@ control 'C-4.1.7' do
   tag cis_level:             1
   tag cis_scored:            true
   tag implementation_status: 'implemented'
-  tag exec_validated:        false
+  tag exec_validated:        true
 
   conf = nginx_conf(input('nginx_conf_path'))
   stapling_values = Array(nginx_http_values(conf, 'ssl_stapling')).flatten.map(&:to_s)
@@ -74,9 +74,18 @@ control 'C-4.1.7' do
   has_tls = !Array(nginx_http_values(conf, 'ssl_certificate')).empty? ||
             conf.http.servers.any? { |s| !Array(s.params['ssl_certificate']).empty? }
 
-  if !has_tls
+  termination = input('nginx_tls_termination')
+  disp = tls_termination_disposition(termination, has_tls)
+  impact 0.0 if disp == :na
+
+  if disp == :na
     describe 'NGINX OCSP stapling' do
-      skip 'not-applicable: no ssl_certificate directives — TLS is terminated upstream and stapling lives there.'
+      skip "not-applicable: nginx_tls_termination=#{termination} — NGINX does not terminate TLS here; validate it at the terminating layer (the load balancer / compute / fargate ALB TLS controls)."
+    end
+  elsif disp == :missing
+    describe 'NGINX must terminate TLS when nginx_tls_termination=nginx (4.1.7)' do
+      subject { has_tls }
+      it { is_expected.to be_truthy }
     end
   else
     describe 'NGINX ssl_stapling enabled (CIS 4.1.7)' do

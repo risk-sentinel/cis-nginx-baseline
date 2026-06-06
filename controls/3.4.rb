@@ -73,7 +73,7 @@ control 'C-3.4' do
   tag cis_level:             1
   tag cis_scored:            true
   tag implementation_status: 'implemented'
-  tag exec_validated:        false
+  tag exec_validated:        true
 
   conf = nginx_conf(input('nginx_conf_path'))
   proxy_pass_locations = conf.http.servers.flat_map(&:locations).select { |l| !Array(l.params['proxy_pass']).empty? }
