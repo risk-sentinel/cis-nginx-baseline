@@ -135,3 +135,7 @@ These not-applicable skips are documented inline in the control body.
 ## See also
 
 Top-level `README.md` for overall repo state and the sub-issue tracker for per-profile progress.
+
+---
+
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=risk-sentinel_cis-nginx-v3.0.0)](https://sonarcloud.io/summary/new_code?id=risk-sentinel_cis-nginx-v3.0.0)
