@@ -1,0 +1,84 @@
+# =============================================================================
+# cis-nginx-baseline — reference inputs
+#
+#   cp inputs/example.yml inputs/mine.yml   # edit, then run ON the nginx host:
+#   cinc-auditor exec . -t local:// --input-file inputs/mine.yml
+#
+# This profile reads a real nginx configuration and inspects the running host.
+# It must run WHERE NGINX IS — `local://` on the host, or `ssh://user@host` for
+# a remote one. Pointing it somewhere without nginx does not error loudly; it
+# produces a thin, misleading run.
+# =============================================================================
+
+# ---- REQUIRED TO RUN --------------------------------------------------------
+
+# Path to the nginx configuration to assess. Everything else follows from what
+# this file includes.
+nginx_conf_path: /etc/nginx/nginx.conf
+
+# The unprivileged user nginx worker processes should run as.
+nginx_service_user: nginx
+
+# ---- THE ONE THAT DECIDES WHERE TLS IS ASSESSED -----------------------------
+#
+# TLS is validated wherever it actually terminates. Declare it, or you will read
+# a column of failures for something another layer is doing correctly.
+#   auto   detect from the configuration (default)
+#   nginx  TLS terminates here, in nginx — the TLS controls apply in full
+#   alb    TLS terminates at a load balancer in front; nginx serves plaintext
+#          behind it and the TLS controls scope out
+nginx_tls_termination: auto
+
+# ---- POLICY -----------------------------------------------------------------
+
+# Ports nginx may listen on. Anything else is a finding.
+nginx_authorized_ports: [80, 443]
+
+# Dynamic modules permitted to be loaded.
+# EMPTY = no module policy is enforced and the control reports that it has
+# nothing to check against.
+nginx_authorized_dynamic_modules: []
+
+# Minimum acceptable nginx version.
+# EMPTY = no version floor is enforced. Set it to your supported baseline.
+#   nginx_min_version: '1.26.0'
+nginx_min_version: ''
+
+# ECDH curves accepted for TLS key exchange.
+nginx_approved_ecdh_curves: ['X25519', 'secp384r1', 'prime256v1', 'secp521r1']
+
+# HTTP methods the server should accept.
+# EMPTY = no method allow-list is enforced.
+#   nginx_approved_http_methods: [GET, HEAD, POST]
+nginx_approved_http_methods: []
+
+# Require HTTP/3 support. Off by default — HTTP/3 is not universal, and
+# requiring it on a server that deliberately does not offer it is noise.
+nginx_http3_required: false
+
+# Require IP-based access filtering, and the CIDRs permitted when it is on.
+# require false = the filtering control scopes out. If you turn it on, an empty
+# allowed list means nothing is permitted.
+nginx_require_ip_filtering: false
+nginx_allowed_cidrs: []
+
+# ---- LOGGING ----------------------------------------------------------------
+
+# How logging is satisfied for this boundary.
+#   custom  you define the requirements below
+# EMPTY logging_requirements = the logging control has nothing concrete to
+# compare against and skips with a rationale.
+logging_strategy: custom
+logging_requirements: {}
+logging_attestation_reference: ''
+
+# ---- ATTESTATION ------------------------------------------------------------
+
+leveraged_evidence_base: ''
+policy_provider_base: ''
+boundary_docs_base: ''
+
+# Direct URI override for the C-1.2.1 attestation.
+# EMPTY = resolved from boundary_docs_base; if that is empty too, it skips.
+c_1_2_1_attestation_uri: ''
+c_1_2_1_attestation_max_age_days: 365
