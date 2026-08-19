@@ -1,141 +1,215 @@
-# NGINX CIS Baseline
+# cis-nginx-baseline
 
-InSpec / CINC Auditor profile validating an NGINX deployment against **CIS NGINX Benchmark v3.0.0**.
-
-## Scope
-
-- **Target:** containerized NGINX workloads (e.g. NGINX sidecar containers running inside ECS Fargate tasks) and any NGINX host install.
-- **Platform family:** `container`.
-- No AWS partition logic, no `inspec-aws` resource pack — all checks use InSpec built-ins (`file`, `nginx_conf`, `processes`, `passwd`, `shadow`, `command`, `package`).
-
-## Running Locally
-
-Prerequisites: Docker. No vendor step required (no external `depends:`).
-
-```bash
-docker pull risksentinel/cinc-auditor@sha256:e483ae61a60ddcb9e6e9d782e79dbdeec87a3fe6271e59e96c332fc1d159d6f1
-```
-
-### Targeting a running container (most realistic for containerized NGINX)
-
-```bash
-docker run --rm \
-  -v "$PWD:/src" \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  risksentinel/cinc-auditor@sha256:e483ae61a60ddcb9e6e9d782e79dbdeec87a3fe6271e59e96c332fc1d159d6f1 exec /src/profiles/cis-nginx \
-  -t docker://<container-id-or-name> \
-  --input-file /src/profiles/cis-nginx/inputs.yml \
-  --reporter cli json:/src/hdf.json
-```
-
-### Targeting the local host (host-install consumers)
-
-```bash
-docker run --rm \
-  -v "$PWD:/src" \
-  -v /etc/nginx:/etc/nginx:ro \
-  risksentinel/cinc-auditor@sha256:e483ae61a60ddcb9e6e9d782e79dbdeec87a3fe6271e59e96c332fc1d159d6f1 exec /src/profiles/cis-nginx \
-  --input-file /src/profiles/cis-nginx/inputs.yml \
-  --reporter cli json:/src/hdf.json
-```
-
-See InSpec's transport docs for alternative targets (`-t ssh://...`, etc.).
-
-## Portability
-
-Four inputs let consumers point the profile at their NGINX without forking. All defaults match the nginx-official container image.
-
-| Input | Default | When to override |
-|---|---|---|
-| `nginx_conf_path` | `/etc/nginx/nginx.conf` | Custom config path (e.g., scratch image with `/opt/nginx/`). |
-| `nginx_service_user` | `nginx` | Distros / images using a different service account (`www-data` on Debian/Ubuntu host installs). |
-| `nginx_authorized_ports` | `[80, 443]` | Workload binds additional ports (mgmt 8443, stream-mode TCP, etc.). Anything outside the list fails CIS 2.4.1. |
-| `nginx_authorized_dynamic_modules` | `[]` | When non-empty, enables strict CIS 2.1.1 enforcement on `load_module` directives. Empty default = attestation. |
-
-### Example: containerized NGINX (nginx-official image) `inputs.yml`
-
-```yaml
-nginx_conf_path: /etc/nginx/nginx.conf
-nginx_service_user: nginx
-nginx_authorized_ports: [80, 443]
-```
-
-### Example: Debian/Ubuntu host install with strict module allowlist
-
-```yaml
-nginx_conf_path: /etc/nginx/nginx.conf
-nginx_service_user: www-data
-nginx_authorized_ports: [80, 443]
-nginx_authorized_dynamic_modules:
-  - modules/ngx_http_geoip_module.so
-  - modules/ngx_stream_module.so
-```
-
-## NIST 800-53 Tagging
-
-Every control carries `tag nist: [...]` resolved at scaffold time from the XCCDF's DISA CCI identifiers via Heimdall's `CciNistMappingData.ts`. Provenance chain:
-
-```
-XCCDF <ident system="http://cyber.mil/cci">CCI-XXXXXX</ident>
-    ↓ (lookup in heimdall2/libs/hdf-converters/src/mappings/CciNistMappingData.ts)
-NIST 800-53 control (e.g. "AC-2 (3)")
-    ↓ (emitted by tools/xccdf_to_inspec/scaffold.py)
-tag nist: ['AC-2 (3)']
-```
-
-The scaffolder fails loudly if any rule has a CCI not in the map.
-
-## Regenerating From XCCDF
-
-```bash
-python3 tools/xccdf_to_inspec/scaffold.py \
-  --xccdf benchmarks/xccdf/CIS_NGINX_Benchmark_v3.0.0_xccdf.xml \
-  --cci-map /path/to/heimdall2/libs/hdf-converters/src/mappings/CciNistMappingData.ts \
-  --output profiles/cis-nginx \
-  --profile-name cis-nginx \
-  --profile-title "NGINX CIS Baseline" \
-  --supports-platform container --partitions "" --no-inspec-aws
-```
-
-Use `--only <cis-number>` to regenerate a single control.
-
-## Status
-
-All 44 controls filled (issue #18). Each control carries a `tag implementation_status:` mapped to OSCAL's native vocabulary — see the [Control Classification Guide](../../docs/dev/Control_Classification_Guide.md) for the 5-bucket taxonomy.
-
-### Coverage distribution
-
-| Type | `implementation_status` | Count |
-|---|---|---|
-| **Automated** | `implemented` | 36 |
-| **Attestation** | `alternative` | 8 |
-
-The 8 attestation controls are: 1.2.1 (package-repo bake-time), 1.2.2 (latest-version bake-time), 2.1.1 (dynamic-module allowlist — conditional on `nginx_authorized_dynamic_modules` input), 4.1.2 (cert trust chain — PKI/ACM concern), 4.1.6 (TLS 1.3 DH params awareness), 4.1.12 (HTTP/3 adoption target), 5.1.1 (IP allow/deny — workload-specific), 5.1.2 (HTTP methods — location-specific).
-
-### Per-section breakdown
-
-| Section | Subject | Controls | Automated | Attestation |
-|---|---|---|---|---|
-| 1 | Installation | 3 | 1 | 2 |
-| 2 | Basic Configuration | 15 | 14 | 1 |
-| 3 | Logging | 4 | 4 | 0 |
-| 4 | TLS | 12 | 9 | 3 |
-| 5 | Request handling | 10 | 8 | 2 |
-
-### `exec_validated` semantics
-
-Every control carries `tag exec_validated: false`. Describe logic is syntactically valid (cinc-auditor `check` passes) but has not been run against a live container target yet. The first container-target exec post-merge will exercise the 36 automated controls; values flip to `true` after that run. Several controls auto-skip with `not-applicable` rationale when:
-
-- TLS is terminated upstream (no `ssl_certificate` directives) — affects most §4 controls.
-- NGINX is not acting as a reverse proxy (no `proxy_pass` directives) — affects 3.4, 4.1.9, 4.1.10, 2.5.4.
-- The container image strips `/etc/passwd` or `/etc/shadow` (distroless) — affects 2.2.2, 2.2.3.
-
-These not-applicable skips are documented inline in the control body.
-
-## See also
-
-Top-level `README.md` for overall repo state and the sub-issue tracker for per-profile progress.
+InSpec / CINC Auditor profile validating an **NGINX** installation against the
+**CIS NGINX Benchmark v3.0.0** — 44 controls across installation, permissions,
+network configuration, logging, TLS and request handling.
 
 ---
 
-[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=risk-sentinel_cis-nginx-v3.0.0)](https://sonarcloud.io/summary/new_code?id=risk-sentinel_cis-nginx-v3.0.0)
+## Where this runs
+
+**On the nginx host.** The profile reads a real configuration file and inspects
+the running system, so it needs `local://` on the host itself or
+`ssh://user@host` for a remote one:
+
+```bash
+# on the host
+cinc-auditor exec . -t local:// --input-file inputs/mine.yml
+
+# remotely
+cinc-auditor exec . -t ssh://user@host --input-file inputs/mine.yml
+```
+
+Pointing it somewhere without nginx does not fail loudly — it produces a thin
+run that looks like a clean one.
+
+---
+
+## Quickstart
+
+```bash
+git clone https://github.com/risk-sentinel/cis-nginx-baseline
+cd cis-nginx-baseline
+
+cp inputs/example.yml inputs/mine.yml     # then edit — see Inputs below
+cinc-auditor vendor . --overwrite
+
+cinc-auditor exec . -t local:// \
+  --input-file inputs/mine.yml \
+  --reporter cli json:results.json
+```
+
+Root or an account able to read `/etc/nginx` and the nginx process table.
+
+### What a first run looks like
+
+Measured against a representative TLS-terminating configuration:
+
+**44 controls, 58 results — roughly 28 passed / 17 failed / 13 skipped, zero
+control source-code errors.**
+
+That run used a sample configuration on a host **without the nginx binary
+installed**, so the version, module and process controls behaved as
+"cannot determine" rather than being exercised. On a real server those execute
+and the pass/fail split moves. The number to take from it is 58 results and zero
+errors — if your run produces far fewer, the profile is not reading your
+configuration.
+
+---
+
+## Inputs
+
+Fully documented in [`inputs/example.yml`](inputs/example.yml).
+
+| Group | Inputs |
+|---|---|
+| **Required** | `nginx_conf_path`, `nginx_service_user` |
+| **Terminate layer** | `nginx_tls_termination` |
+| **Policy** | `nginx_authorized_ports`, `nginx_authorized_dynamic_modules`, `nginx_min_version`, `nginx_approved_ecdh_curves`, `nginx_approved_http_methods`, `nginx_http3_required`, `nginx_require_ip_filtering`, `nginx_allowed_cidrs` |
+| **Logging** | `logging_strategy`, `logging_requirements`, `logging_attestation_reference` |
+| **Attestation** | the `*_base` URIs, `c_1_2_1_attestation_uri` |
+
+**`nginx_tls_termination` is the input to get right first.** TLS is validated
+wherever it actually terminates — in nginx (`nginx`), at a load balancer in front
+(`alb`), or detected from the configuration (`auto`). A consumer terminating TLS
+at an ALB and leaving this unset reads a column of failures for something
+another layer is doing correctly.
+
+**`nginx_min_version` empty means no version floor is enforced**, not that any
+version passes review. Set it to your supported baseline.
+
+---
+
+## Controls
+
+44 controls following the CIS NGINX v3.0.0 numbering:
+
+| Section | Assesses |
+|---|---|
+| 1 | installation — package source, dynamic modules, version currency |
+| 2 | basic configuration — worker user, permissions, `server_tokens`, listening ports |
+| 3 | logging — access and error logs, log format, rotation, remote logging |
+| 4 | encryption — TLS protocols and ciphers, ECDH curves, HSTS, certificate handling |
+| 5 | request handling — timeouts, buffer limits, allowed methods, IP filtering |
+
+---
+
+## Producing evidence
+
+A `--reporter cli` run tells you the answer. It does not produce something an
+assessor can trace back to what was assessed, when, by whom, or from which
+scanner output. For that, use the CI templates — the whole pipeline, in YAML
+with no helper scripts behind it:
+
+**GitHub**
+
+```yaml
+jobs:
+  evidence:
+    uses: risk-sentinel/cis-nginx-baseline/.github/workflows/exec-evidence.yml@main
+    with:
+      target: my-web-host
+      profile_name: cis-nginx-v3.0.0
+      profile_version: "0.1.0"
+      target_uri: 'local://'
+```
+
+**GitLab**
+
+```yaml
+include:
+  - project: risk-sentinel/cis-nginx-baseline
+    file: /ci/gitlab/exec-evidence.yml
+    inputs:
+      target: my-web-host
+      profile_name: cis-nginx-v3.0.0
+      profile_version: "0.1.0"
+      target_uri: "local://"
+```
+
+An `include:` brings YAML and nothing else, which is why the logic lives in the
+YAML rather than in a script an including project would never receive. The
+templates are carried in this repository on purpose: clone it or include it and
+you have the entire pipeline, with nothing else to install.
+
+### The order, and why it is that order
+
+```
+create passthrough -> execute -> convert (gate) -> apply -> label (gate)
+                   -> validate (gate) -> display
+```
+
+The audit record is built **before** the scan, because that is when the honest
+start time and the pipeline provenance are known. Only finish time, the artifact
+digest and the outcome counts are added afterwards.
+
+### Two artifacts
+
+| artifact | shape | for |
+|---|---|---|
+| `results.final.json` | HDF v3 `baselines[]` | authoritative evidence — schema-validated, carries the audit record and typed target components, feeds `hdf convert --to oscal-sar` |
+| `results-heimdall.json` | InSpec exec-json `profiles[]` | loading into Heimdall |
+
+The Heimdall artifact is a **copy, not a conversion**. Tested against a live
+Heimdall: every `profiles[]` variant loads, including the output of both
+`--to hdf@1` and `--to hdf@2`; only the `baselines[]` v3 document is refused. So
+the choice is fidelity, and every conversion path drops `resource_params` from
+each result plus `depends` / `status` / `status_message` from the profile.
+Copying what cinc-auditor already wrote loses nothing.
+
+**Do not reach for `hdf convert --to hdf@2`.** The `hdf@N` namespace was
+renumbered between hdf-libs 3.4.1 and 3.5.1 — on 3.4.1 it emits `baselines[]`,
+on 3.5.1 `profiles[]` — so a pipeline pinned to it silently changes artifact
+across an image bump. On 3.5.1, `@1` and `@2` are byte-identical.
+
+### Three gates, each of which has failed silently in this estate
+
+- `hdf convert` without `--no-validate`
+- `hdf label` followed by `hdf label show | grep '^Component:'` — `label set`
+  prints `Labels written` and writes a byte-identical file when the document has
+  no components
+- `hdf validate`
+
+The exec step additionally fails the job on a missing or **zero-result**
+artifact. A run that assessed nothing must not go green.
+
+### The audit record
+
+Written on every run — clean, failed, findings or none. Target, scan window,
+scanner, profile and version, pipeline provenance, actor, converter, a sha256 of
+the pre-conversion artifact, and outcome counts.
+
+Two properties are deliberate: **absent is not empty** (an inapplicable field is
+omitted, an undeterminable one is `null` with a reason), and the record **marks
+which fields are corroborable** against systems the producer does not control.
+An audit chain where every field is self-asserted is a story.
+
+Schema authority: [dev-sec-ops-baseline#33](https://github.com/risk-sentinel/dev-sec-ops-baseline/issues/33).
+
+---
+
+## Consuming this profile
+
+Depend on it rather than forking, so you get fixes:
+
+```yaml
+depends:
+  - name: cis-nginx-v3.0.0
+    git: https://github.com/risk-sentinel/cis-nginx-baseline.git
+    tag: v0.1.7
+```
+
+Then `include_controls 'cis-nginx-v3.0.0'` and supply your own inputs. Input overrides
+reach the depended profile's controls, so your values win without editing
+anything here.
+
+## Contributing
+
+Control logic changes belong here. `cinc-auditor check` only *loads* a profile —
+it will not catch a resource that returns empty because an API call failed.
+Anything touching `libraries/` needs a real `exec` against a real target before
+it is trusted.
+
+## License
+
+Apache-2.0. See [LICENSE](LICENSE).
