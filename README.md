@@ -1,6 +1,6 @@
 # cis-nginx-baseline
 
-[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=risk-sentinel_cis-nginx-v3.0.0)](https://sonarcloud.io/summary/new_code?id=risk-sentinel_cis-nginx-v3.0.0)
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=risk-sentinel_cis-nginx-baseline)](https://sonarcloud.io/summary/new_code?id=risk-sentinel_cis-nginx-baseline)
 
 InSpec / CINC Auditor profile validating an **NGINX** installation against the
 **CIS NGINX Benchmark v3.0.0** — 44 controls across installation, permissions,
