@@ -2,7 +2,7 @@
 #
 # _nginx_conf_helpers — correct accessor for http-context NGINX directives.
 #
-# BUG THIS FIXES (sparc-validate#161): controls were reading http-level
+# BUG THIS FIXES: controls were reading http-level
 # directives via `nginx_conf(path).http.params['X']`, but the object returned by
 # `.http` (Inspec::Resources::NginxConfHttp) has NO `params` method — it exposes
 # only `.servers`, `.locations`, `.entries`. So `conf.http.params[...]` raises
@@ -37,7 +37,7 @@ module NginxConfHelpers
     vals
   end
 
-  # TLS-termination disposition (sparc-validate#172). Given the operator-declared
+  # TLS-termination disposition. Given the operator-declared
   # `nginx_tls_termination` model and whether nginx actually has TLS evidence,
   # decide how the section 4.1 TLS controls behave:
   #   :na      -> Not Applicable: nginx is not the TLS terminator (validate the

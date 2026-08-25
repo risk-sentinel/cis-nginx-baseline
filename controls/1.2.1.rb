@@ -55,7 +55,7 @@ control 'C-1.2.1' do
   # Package-manager repository configuration is an image bake-time / host-
   # provisioning concern not expressed by the running NGINX workload — converted
   # to Pass-with-evidence against the boundary's image-build record
-  # (sparc-validate#154). Defaults via attestation_uri(:boundary, …), which
+  # Defaults via attestation_uri(:boundary, …), which
   # resolves against boundary_docs_base; empty -> '' -> Skip. Local var is `uri`
   # to avoid shadowing the attestation_uri helper method.
   uri          = input('c_1_2_1_attestation_uri', value: attestation_uri(:boundary, 'C-1.2.1'))
