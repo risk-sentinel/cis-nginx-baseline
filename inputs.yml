@@ -6,7 +6,7 @@
 # or individually via --input name=value
 #
 # Defaults match the nginx-official container image and most distro
-# packages. A worked overlay sits at `examples/sparc.inputs.yml`.
+# packages.
 
 # Path to the primary nginx configuration file on the target.
 nginx_conf_path: /etc/nginx/nginx.conf

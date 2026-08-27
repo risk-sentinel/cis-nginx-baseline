@@ -111,7 +111,7 @@ inputs:
         structured assertions beyond presence (e.g., {"5.7":
         {"threshold": 3}}).
 
-  # ---- automation inputs (sparc-validate#161 — automate, don't attest) ----
+  # ---- automation inputs (automate, don't attest) ----
   - name: nginx_approved_ecdh_curves
     type: array
     value: ['X25519', 'secp384r1', 'prime256v1', 'secp521r1']
@@ -173,7 +173,7 @@ inputs:
       ALB TLS controls own that boundary). 'auto' (default) = infer from config (no TLS
       directives -> upstream/N-A; present -> validate) — back-compatible behaviour.
 
-  # ---- document_attestation evidence-class bases (sparc-validate#154) ----
+  # ---- document_attestation evidence-class bases ----
   # Three evidence classes; provider inferred from each base's URI scheme.
   # attestation_uri(:class,'name') -> "<base>/<name>.<ext>"; unset base -> '' ->
   # control SKIPs (saf attest apply-able). Providers: s3:// https://
@@ -213,5 +213,5 @@ supports:
   # the actual platform inspec/train detects over -t docker:// (e.g. debian,
   # alpine) and -t local:// / -t ssh:// on a Linux host. The prior
   # `platform: container` matched no real container OS, so the profile skipped
-  # with "unsupported platform" on every docker:// target (sparc-validate#172).
+  # with "unsupported platform" on every docker:// target.
   - platform: linux
