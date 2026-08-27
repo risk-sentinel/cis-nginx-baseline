@@ -7,7 +7,7 @@
 # `.http` (Inspec::Resources::NginxConfHttp) has NO `params` method — it exposes
 # only `.servers`, `.locations`, `.entries`. So `conf.http.params[...]` raises
 # `NoMethodError: undefined method 'params' for ...NginxConfHttp` at exec. The
-# whole profile is `exec_validated: false`, so this was never caught until the
+# whole profile is `exec_validated: false`, so this went unnoticed until the
 # profile was actually exec'd against an nginx target.
 #
 # Http-level directives instead live under `conf.params['http']` — an Array of
