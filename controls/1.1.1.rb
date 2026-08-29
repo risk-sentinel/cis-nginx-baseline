@@ -33,7 +33,9 @@ control 'C-1.1.1' do
   "
   impact 0.5
   tag severity:              'medium'
+  tag severity_source:       'unassessed'
   tag nist:                  ['MA-3 a']
+  tag nist_r4:               ['MA-3']
   tag cci:                   ['CCI-000865']
   tag cis_number:            '1.1.1'
   tag cis_rid:               '1.1.1'
