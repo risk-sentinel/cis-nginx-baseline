@@ -81,6 +81,7 @@ control 'C-4.1.9' do
   tag severity:              'medium'
   tag severity_source:       'unassessed'
   tag nist:                  ['SC-8', 'AC-8 a']
+  tag nist_r4:               ['SC-8']
   tag cci:                   ['CCI-002418', 'CCI-000051']
   tag cis_number:            '4.1.9'
   tag cis_rid:               '4.1.9'

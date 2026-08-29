@@ -72,6 +72,7 @@ control 'C-5.1.2' do
   tag severity:              'medium'
   tag severity_source:       'unassessed'
   tag nist:                  ['SI-4 (11)', 'SA-8']
+  tag nist_r4:               ['SA-8', 'SI-4 (11)']
   tag cci:                   ['CCI-002668', 'CCI-000664']
   tag cis_number:            '5.1.2'
   tag cis_rid:               '5.1.2'
