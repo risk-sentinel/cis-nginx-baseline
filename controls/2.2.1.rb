@@ -68,6 +68,7 @@ control 'C-2.2.1' do
   "
   impact 0.5
   tag severity:              'medium'
+  tag severity_source:       'unassessed'
   tag nist:                  ['AC-11 b', 'AC-2 c']
   tag cci:                   ['CCI-000056', 'CCI-002113']
   tag cis_number:            '2.2.1'
