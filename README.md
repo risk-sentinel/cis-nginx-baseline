@@ -125,7 +125,7 @@ jobs:
 include:
   - project: risk-sentinel/cis-nginx-baseline
     ref: v0.1.9
-    file: /ci/gitlab/exec-evidence.yml
+    file: /ci/jobs/exec-evidence.yml
     inputs:
       target: my-web-host
       boundary: my-boundary
