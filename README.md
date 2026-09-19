@@ -96,6 +96,74 @@ version passes review. Set it to your supported baseline.
 
 ---
 
+## Running without GitHub access
+
+Every release carries a `.tar.gz` asset, built and verified by
+`.github/workflows/release-artifact.yml`.
+
+It holds this profile. This one declares no `depends:`, so there is no resource
+pack to carry, but the asset is still the supported way to move it across to a
+consumer who cannot reach github.com.
+
+Assets are attached to every release cut **after this workflow landed**; earlier
+releases have none.
+
+```bash
+VERSION=<the release you want>
+
+# once, from somewhere that CAN reach GitHub
+curl -LO https://github.com/risk-sentinel/cis-nginx-baseline/releases/download/$VERSION/cis-nginx-v3.0.0-$VERSION.tar.gz
+
+# then, on the isolated side
+mkdir -p cis-nginx-v3.0.0 && tar xzf cis-nginx-v3.0.0-$VERSION.tar.gz -C cis-nginx-v3.0.0
+cd cis-nginx-v3.0.0
+cinc-auditor exec . -t local:// --input-file inputs/example.yml
+```
+
+**Extract it, then run from inside the directory.** That is the shape the CI
+templates use and the only one that is tested.
+
+The asset is verified before it is attached: the release job rejects an archive
+that declares `depends:` but carries no `vendor/`, and it rejects one that will
+not **load with the network switched off**. A tarball that exists is not a
+tarball that works.
+
+### From CI
+
+Both templates take `profile_source`, defaulting to `git` — existing callers are
+unaffected:
+
+| value | behaviour |
+| --- | --- |
+| `git` | Vendor from the declared remotes. Needs to reach them. |
+| `archive` | Unpack a release artifact. Contacts no remote. Requires `archive_path`. |
+
+`archive` **never falls back to `git`.** An empty or missing `archive_path` fails
+the job, as does an archive that declares dependencies but carries none. A
+fallback would defeat the isolation the mode exists for *and* still report a
+successful scan.
+
+GitHub Actions:
+
+```yaml
+uses: risk-sentinel/cis-nginx-baseline/.github/workflows/exec-evidence.yml@<version>
+with:
+  profile_source: archive
+  archive_path: ./cis-nginx-v3.0.0-<version>.tar.gz
+```
+
+GitLab:
+
+```yaml
+include:
+  - project: <your-org>/cis-nginx-baseline
+    ref: <version>
+    file: /ci/jobs/exec-evidence.yml
+    inputs:
+      profile_source: archive
+      archive_path: ./cis-nginx-v3.0.0-<version>.tar.gz
+```
+
 ## Producing evidence
 
 A `--reporter cli` run tells you the answer. It does not produce something an
@@ -125,7 +193,7 @@ jobs:
 include:
   - project: risk-sentinel/cis-nginx-baseline
     ref: v0.1.9
-    file: /ci/gitlab/exec-evidence.yml
+    file: /ci/jobs/exec-evidence.yml
     inputs:
       target: my-web-host
       boundary: my-boundary
