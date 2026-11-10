@@ -71,10 +71,10 @@ control 'C-5.1.2' do
   impact 0.5
   tag severity:              'medium'
   tag severity_source:       'unassessed'
-  tag nist:                  ['SI-4 (11)', 'SA-8']
-  tag ksi:                   ['KSI-PIY-RSD']
-  tag nist_r4:               ['SA-8', 'SI-4 (11)']
-  tag cci:                   ['CCI-002668', 'CCI-000664']
+  tag nist:                  ['PL-8 a 1', 'PL-8 (1) (a)', 'PL-8 a']
+  tag ksi:                   ['KSI-PIY-RSD', 'KSI-SVC-EIS']
+  tag nist_r4:               ['PL-8 (1) (a)', 'PL-8 a', 'PL-8 a 1']
+  tag cci:                   ['CCI-003073', 'CCI-003081', 'CCI-003072']
   tag cis_number:            '5.1.2'
   tag cis_rid:               '5.1.2'
   tag cis_benchmark:         'CIS NGINX Benchmark v3.0.0'
