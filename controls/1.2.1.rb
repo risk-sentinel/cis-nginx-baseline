@@ -39,10 +39,10 @@ control 'C-1.2.1' do
   impact 0.5
   tag severity:              'medium'
   tag severity_source:       'unassessed'
-  tag nist:                  ['SI-12', 'MP-6 a', 'SI-2 a']
-  tag ksi:                   ['KSI-CMT-VTD', 'KSI-RPL-ABO']
-  tag nist_r4:               ['MP-6 a', 'SI-12', 'SI-2 a']
-  tag cci:                   ['CCI-001678', 'CCI-001028', 'CCI-001225']
+  tag nist:                  ['SI-2 (5)', 'SI-2 (4)', 'SI-2 c', 'SI-2 (2)']
+  tag ksi:                   ['KSI-CMT-VTD', 'KSI-SVC-EIS']
+  tag nist_r4:               ['SI-2 (5)', 'SI-2 c']
+  tag cci:                   ['CCI-002613', 'CCI-004961', 'CCI-002605', 'CCI-004955']
   tag cis_number:            '1.2.1'
   tag cis_rid:               '1.2.1'
   tag cis_benchmark:         'CIS NGINX Benchmark v3.0.0'

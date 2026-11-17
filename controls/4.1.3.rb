@@ -39,10 +39,10 @@ control 'C-4.1.3' do
   impact 0.5
   tag severity:              'medium'
   tag severity_source:       'unassessed'
-  tag nist:                  ['AC-3', 'AC-8 a']
+  tag nist:                  ['AC-3', 'AC-6', 'AC-3 (11)']
   tag ksi:                   ['KSI-IAM-APM', 'KSI-IAM-ELP', 'KSI-IAM-JIT']
-  tag nist_r4:               ['AC-3']
-  tag cci:                   ['CCI-000213', 'CCI-000051']
+  tag nist_r4:               ['AC-3', 'AC-6']
+  tag cci:                   ['CCI-000213', 'CCI-000225', 'CCI-003644']
   tag cis_number:            '4.1.3'
   tag cis_rid:               '4.1.3'
   tag cis_benchmark:         'CIS NGINX Benchmark v3.0.0'

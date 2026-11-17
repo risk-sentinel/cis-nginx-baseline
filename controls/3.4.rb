@@ -64,10 +64,10 @@ control 'C-3.4' do
   impact 0.5
   tag severity:              'medium'
   tag severity_source:       'unassessed'
-  tag nist:                  ['AC-2 (2)', 'AU-3 d']
-  tag ksi:                   ['KSI-IAM-AAM', 'KSI-IAM-JIT', 'KSI-IAM-SNU', 'KSI-MLA-OSM']
-  tag nist_r4:               ['AC-2 (2)', 'AU-3']
-  tag cci:                   ['CCI-001682', 'CCI-000133']
+  tag nist:                  ['AU-6 a', 'AU-6 (1)', 'AU-6 (5)']
+  tag ksi:                   ['KSI-MLA-OSM', 'KSI-MLA-RVL']
+  tag nist_r4:               ['AU-6 (1)', 'AU-6 (5)', 'AU-6 a']
+  tag cci:                   ['CCI-000148', 'CCI-000151', 'CCI-001864', 'CCI-001867']
   tag cis_number:            '3.4'
   tag cis_rid:               '3.4'
   tag cis_benchmark:         'CIS NGINX Benchmark v3.0.0'

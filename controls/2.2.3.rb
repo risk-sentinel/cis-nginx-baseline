@@ -51,10 +51,10 @@ control 'C-2.2.3' do
   impact 0.5
   tag severity:              'medium'
   tag severity_source:       'unassessed'
-  tag nist:                  ['CM-6 a', 'AC-2 a']
-  tag ksi:                   ['KSI-CMT-LMC', 'KSI-CMT-RMV', 'KSI-IAM-APM', 'KSI-IAM-JIT', 'KSI-IAM-SNU', 'KSI-IAM-SUS', 'KSI-MLA-EVC', 'KSI-SVC-ACM']
-  tag nist_r4:               ['AC-2 a', 'CM-6 a']
-  tag cci:                   ['CCI-000364', 'CCI-002110']
+  tag nist:                  ['CM-6 a', 'CM-1 a 2', 'CM-1 c 2', 'CM-2 a']
+  tag ksi:                   ['KSI-CMT-LMC', 'KSI-CMT-RMV', 'KSI-CNA-DFP', 'KSI-CNA-IBP', 'KSI-MLA-EVC', 'KSI-SVC-ACM']
+  tag nist_r4:               ['CM-1 a 2']
+  tag cci:                   ['CCI-003941', 'CCI-000290', 'CCI-003906', 'CCI-003909']
   tag cis_number:            '2.2.3'
   tag cis_rid:               '2.2.3'
   tag cis_benchmark:         'CIS NGINX Benchmark v3.0.0'

@@ -36,10 +36,10 @@ control 'C-5.3.1' do
   impact 0.5
   tag severity:              'medium'
   tag severity_source:       'unassessed'
-  tag nist:                  ['CM-6 b']
-  tag ksi:                   ['KSI-CMT-LMC', 'KSI-CMT-RMV', 'KSI-MLA-EVC', 'KSI-SVC-ACM']
-  tag nist_r4:               ['CM-6 b']
-  tag cci:                   ['CCI-000366']
+  tag nist:                  ['SA-15 a 1', 'SA-3 a', 'SA-15 b', 'SA-15 a 2']
+  tag ksi:                   ['KSI-PIY-RIS', 'KSI-PIY-RSD']
+  tag nist_r4:               ['SA-15 a 1', 'SA-15 a 2', 'SA-15 b']
+  tag cci:                   ['CCI-003234', 'CCI-004671', 'CCI-003241', 'CCI-003235']
   tag cis_number:            '5.3.1'
   tag cis_rid:               '5.3.1'
   tag cis_benchmark:         'CIS NGINX Benchmark v3.0.0'

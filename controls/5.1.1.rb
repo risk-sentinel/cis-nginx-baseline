@@ -40,10 +40,10 @@ control 'C-5.1.1' do
   impact 0.5
   tag severity:              'medium'
   tag severity_source:       'unassessed'
-  tag nist:                  ['AC-4', 'SI-4 (5)']
-  tag ksi:                   ['KSI-IAM-ELP', 'KSI-IAM-JIT', 'KSI-IAM-SNU', 'KSI-INR-RIR', 'KSI-MLA-LET']
-  tag nist_r4:               ['AC-4', 'SI-4 (5)']
-  tag cci:                   ['CCI-001414', 'CCI-002663']
+  tag nist:                  ['SC-7 (8)']
+  tag ksi:                   ['KSI-CNA-MAT']
+  tag nist_r4:               ['SC-7 (8)']
+  tag cci:                   ['CCI-001112']
   tag cis_number:            '5.1.1'
   tag cis_rid:               '5.1.1'
   tag cis_benchmark:         'CIS NGINX Benchmark v3.0.0'

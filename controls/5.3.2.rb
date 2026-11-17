@@ -45,10 +45,10 @@ control 'C-5.3.2' do
   impact 0.5
   tag severity:              'medium'
   tag severity_source:       'unassessed'
-  tag nist:                  ['SI-7 a']
-  tag ksi:                   ['KSI-SVC-VRI']
-  tag nist_r4:               ['SI-7']
-  tag cci:                   ['CCI-002704']
+  tag nist:                  ['CM-7 (5) (b)', 'SI-7 (12)', 'SI-7 (6)', 'CM-7 (5) (c)']
+  tag ksi:                   ['KSI-IAM-JIT', 'KSI-PIY-GIV']
+  tag nist_r4:               ['CM-7 (5) (b)', 'CM-7 (5) (c)', 'SI-7 (12)', 'SI-7 (6)']
+  tag cci:                   ['CCI-001774', 'CCI-002733', 'CCI-002716', 'CCI-001777']
   tag cis_number:            '5.3.2'
   tag cis_rid:               '5.3.2'
   tag cis_benchmark:         'CIS NGINX Benchmark v3.0.0'

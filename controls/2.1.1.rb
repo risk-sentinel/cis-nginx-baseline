@@ -52,10 +52,10 @@ control 'C-2.1.1' do
   impact 0.5
   tag severity:              'medium'
   tag severity_source:       'unassessed'
-  tag nist:                  ['CM-7 a']
-  tag ksi:                   ['KSI-CMT-RMV', 'KSI-IAM-JIT']
-  tag nist_r4:               ['CM-7 a']
-  tag cci:                   ['CCI-000381']
+  tag nist:                  ['CM-7 (5) (b)', 'CM-7 (5) (a)', 'CM-7 b', 'CM-7 (5) (c)']
+  tag ksi:                   ['KSI-CMT-RMV', 'KSI-IAM-JIT', 'KSI-PIY-GIV']
+  tag nist_r4:               ['CM-7 (5) (a)', 'CM-7 (5) (b)', 'CM-7 (5) (c)', 'CM-7 b']
+  tag cci:                   ['CCI-001774', 'CCI-001773', 'CCI-000382', 'CCI-001777']
   tag cis_number:            '2.1.1'
   tag cis_rid:               '2.1.1'
   tag cis_benchmark:         'CIS NGINX Benchmark v3.0.0'
